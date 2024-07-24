@@ -48,8 +48,25 @@ http.createServer((req,res) => {
         if(req.url.startsWith('/users/')){
             const key=req.url.split('/')[2];
             let body='';
-            req.on
+            req.on('data',(data) => {
+                body += data;
+            });
+            return req.on('end', () => {
+                console.log('PUT 본문(body)', body)
+                users[key]=JSON.parse(body).name;
+                return res.end(JSON.stringify(users));
+            })
         }
-        
+    }else if( req.method ==='DELETE'){
+        if(req.url.startsWith('/users/')){
+            const key=req.url.split('/')[2];
+            delete users[key];
+            return res.end(JSON.stringify(users));
+        }
     }
+    res.writehead(404,'NOT FOUND');
+    return res.end('NOT FOUND' )
 })
+.listen(8085, () =>{
+    console.log('8085번 포트에서 서버 대기 중입니다.')
+});
